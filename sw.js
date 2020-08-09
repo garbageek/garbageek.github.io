@@ -1,37 +1,35 @@
-/** An empty service worker! */
-// self.addEventListener('fetch', function (event) {
-// });
+// Service Worker
 
-self.addEventListener('fetch', function(e) {
-  console.log(e.request.url);
-  e.respondWith(
-    caches.match(e.request).then(function(response) {
-      return response || fetch(e.request);
-    })
-  );
-});
+const CACHE_NAME = "mycmdline"
 
-
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Update UI notify the user they can install the PWA
-    showInstallPromotion();
-});
+const PRECACHE_URLS = [
+    "/",
+    "/css/custom.css",
+    "/img/android-chrome-192x192.png",
+    "/img/avatar.png",
+    "/img/favicon.ico",
+    "/manifest.json",
+    "custom.js"
+];
 
 self.addEventListener('install', function (e) {
+    self.skipWaiting();
     e.waitUntil(
-        caches.open('mycmdline').then(function (cache) {
-            return cache.addAll([
-                '/',
-                '/index.html',
-                '/avatar.png',
-                '/custom.css'
-            ]);
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.addAll(PRECACHE_URLS);
+        })
+    );
+});
+
+self.addEventListener('fetch', function (event) {
+    event.respondWith(
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.match(event.request).then(function (response) {
+                return response || fetch(event.request).then(function (response) {
+                    cache.put(event.request, response.clone());
+                    return response;
+                });
+            });
         })
     );
 });
