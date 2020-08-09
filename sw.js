@@ -9,7 +9,8 @@ const PRECACHE_URLS = [
     "/img/avatar.png",
     "/img/favicon.ico",
     "/manifest.json",
-    "custom.js"
+    "custom.js",
+    "/data/cv-artur-kulik.pdf"
 ];
 
 self.addEventListener('install', function (e) {
